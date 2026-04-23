@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Efficiency Buddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 600;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .trip-type {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .trip-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .trip-option input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .trip-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 0;
+        }
+
+        .trip-option input:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .trip-option label:hover {
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #666;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .status.budget-friendly {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.not-budget-friendly {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .formula {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .formula strong {
+            color: #333;
+        }
+
+        .unit-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .unit-group {
+            flex: 1;
+        }
+
+        .unit-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .unit-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .unit-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .budget-input {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .budget-input label {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .budget-input input {
+            width: 120px;
+            padding: 10px 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        .budget-input input:focus {
+            outline: none;
+            border-color: white;
+            background: white;
+        }
+
+        .budget-input .hint {
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛽ Fuel Efficiency Buddy</h1>
+        <p class="subtitle">Calculate your trip fuel costs and budget status</p>
+
+        <form id="fuelForm">
+            <!-- Unit Selection -->
+            <div class="unit-toggle">
+                <div class="unit-group">
+                    <span class="unit-label">Distance Unit</span>
+                    <select class="unit-select" id="distanceUnit">
+                        <option value="km" selected>Kilometers (km)</option>
+                        <option value="miles">Miles (mi)</option>
+                    </select>
+                </div>
+                <div class="unit-group">
+                    <span class="unit-label">Volume Unit</span>
+                    <select class="unit-select" id="volumeUnit">
+                        <option value="L" selected>Liters (L)</option>
+                        <option value="gallons">Gallons (gal)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Budget Threshold -->
+            <div class="budget-input">
+                <label for="budgetThreshold">💰 Your Budget Threshold ($)</label>
+                <input type="number" id="budgetThreshold" min="0" step="1" value="100" placeholder="100">
+                <div class="hint">Trips costing less than this are "Budget Friendly"</div>
+            </div>
+
+            <div class="trip-type">
+                <div class="trip-option">
+                    <input type="radio" id="oneWay" name="tripType" value="one-way" checked>
+                    <label for="oneWay">One Way</label>
+                </div>
+                <div class="trip-option">
+                    <input type="radio" id="roundTrip" name="tripType" value="round-trip">
+                    <label for="roundTrip">Round Trip</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="distance">Distance (one-way)</label>
+                <input type="number" id="distance" min="0" step="0.01" placeholder="Enter distance" required>
+            </div>
+
+            <div class="form-group">
+                <label for="efficiency">Fuel Efficiency</label>
+                <input type="number" id="efficiency" min="0" step="0.01" placeholder="e.g., 10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Fuel Price ($/unit)</label>
+                <input type="number" id="price" min="0" step="0.01" placeholder="e.g., 1.50" required>
+            </div>
+
+            <button type="submit">Calculate Fuel Cost</button>
+        </form>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="result-item">
+                <span class="result-label">Total Distance:</span>
+                <span class="result-value" id="totalDistance">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Fuel:</span>
+                <span class="result-value" id="totalFuel">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Cost:</span>
+                <span class="result-value" id="totalCost">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Cost per <span id="distanceUnitLabel">km</span>:</span>
+                <span class="result-value" id="costPerDistance">-</span>
+            </div>
+            <div class="status" id="status"></div>
+        </div>
+
+        <div class="formula">
+            <strong>Formula:</strong> Total Cost = (Distance × 2 if round-trip) × (Efficiency / 100) × Price<br>
+            <strong>Budget Friendly:</strong> Total cost &lt; $100<br>
+            <strong>Units:</strong> Supports km/L (Metric) and miles/gallons (US)
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('fuelForm');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+
+        // Update labels when unit selection changes
+        document.getElementById('distanceUnit').addEventListener('change', function() {
+            const distUnit = this.value;
+            document.getElementById('distanceUnitLabel').textContent = distUnit;
+            // Update placeholders
+            const distanceInput = document.getElementById('distance');
+            const efficiencyInput = document.getElementById('efficiency');
+            const priceInput = document.getElementById('price');
+            
+            if (distUnit === 'miles') {
+                distanceInput.placeholder = 'Enter distance in miles';
+                efficiencyInput.placeholder = 'e.g., 25 MPG';
+                priceInput.placeholder = 'e.g., 3.50 $/gallon';
+            } else {
+                distanceInput.placeholder = 'Enter distance in kilometers';
+                efficiencyInput.placeholder = 'e.g., 10 L/100km';
+                priceInput.placeholder = 'e.g., 1.50 $/L';
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear previous results
+            resultDiv.classList.remove('show');
+            errorDiv.classList.remove('show');
+
+            // Get form values
+            const distance = parseFloat(document.getElementById('distance').value);
+            const efficiency = parseFloat(document.getElementById('efficiency').value);
+            const price = parseFloat(document.getElementById('price').value);
+            const tripType = document.querySelector('input[name="tripType"]:checked').value;
+            const isRoundTrip = tripType === 'round-trip';
+            const distanceUnit = document.getElementById('distanceUnit').value;
+            const volumeUnit = document.getElementById('volumeUnit').value;
+            const budgetThreshold = parseFloat(document.getElementById('budgetThreshold').value) || 100;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        distance,
+                        efficiency,
+                        price,
+                        isRoundTrip,
+                        distanceUnit,
+                        volumeUnit,
+                        budgetThreshold
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Calculation failed');
+                }
+
+                // Display results with correct units (with fallback defaults)
+                const distLabel = data.units?.distance || distanceUnit;
+                const volLabel = data.units?.volume || volumeUnit;
+                
+                document.getElementById('totalDistance').textContent = `${data.totalDistance} ${distLabel}`;
+                document.getElementById('totalFuel').textContent = `${data.totalFuel} ${volLabel}`;
+                document.getElementById('totalCost').textContent = `$${data.totalCost.toFixed(2)}`;
+                document.getElementById('costPerDistance').textContent = `$${data.costPerDistance.toFixed(2)}`;
+                document.getElementById('distanceUnitLabel').textContent = distLabel;
+
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = data.status;
+                statusEl.className = 'status ' + (data.status === 'Budget Friendly' ? 'budget-friendly' : 'not-budget-friendly');
+
+                resultDiv.classList.add('show');
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.add('show');
+            }
+        });
+    </script>
+</body>
+</html>

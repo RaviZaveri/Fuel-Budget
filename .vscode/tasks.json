@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/backend && node tests/calculator.test.js",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "title": "Run Fuel Efficiency Tests",
+            "description": "Run test cases for the Fuel Efficiency Buddy application"
+        },
+        {
+            "label": "test:watch",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/backend && node tests/calculator.test.js",
+            "problemMatcher": [],
+            "isBackground": true,
+            "title": "Watch Tests",
+            "description": "Run tests in watch mode"
+        }
+    ]
+}
